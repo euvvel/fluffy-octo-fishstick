@@ -8,17 +8,22 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: 
-      image: ghcr.io/rust-embedded/android-ndk:latest
     
     steps:
     - uses: actions/checkout@v4
     
-    - name: Install cargo-apk2
-      run: cargo install cargo-apk2
+    - name: Setup Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        target: aarch64-linux-android
+        override: true
+    
+    - name: Install cargo-apk
+      run: cargo install cargo-apk
     
     - name: Build APK
-      run: cargo apk2 build --release
+      run: cargo apk build --release
     
     - name: Upload APK
       uses: actions/upload-artifact@v4
