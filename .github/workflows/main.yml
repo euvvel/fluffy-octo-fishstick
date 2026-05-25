@@ -2,7 +2,7 @@ name: Build Android APK
 
 on:
   push:
-    branches: [ main2 ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -15,12 +15,7 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
       with:
-        cmdline-tools-version: 11076708
-        packages: |
-          platform-tools
-          platforms;android-30
-          platforms;android-33
-          build-tools;30.0.3
+        packages: 'platform-tools'
     
     - name: Setup Rust
       uses: actions-rs/toolchain@v1
@@ -29,14 +24,13 @@ jobs:
         target: aarch64-linux-android
         override: true
     
-    - name: Install cargo-apk
-      run: cargo install cargo-apk
+    - name: Install cargo-apk2
+      run: cargo install cargo-apk2
     
     - name: Build APK
-      run: cargo apk build --release
+      run: cargo apk2 build --release
       env:
         ANDROID_HOME: ${{ env.ANDROID_HOME }}
-        ANDROID_SDK_ROOT: ${{ env.ANDROID_HOME }}
     
     - name: Upload APK
       uses: actions/upload-artifact@v4
