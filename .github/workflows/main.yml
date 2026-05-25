@@ -2,7 +2,7 @@ name: Build Android APK
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main2 ]
   workflow_dispatch:
 
 jobs:
@@ -11,6 +11,16 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
+    
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      with:
+        cmdline-tools-version: 11076708
+        packages: |
+          platform-tools
+          platforms;android-30
+          platforms;android-33
+          build-tools;30.0.3
     
     - name: Setup Rust
       uses: actions-rs/toolchain@v1
@@ -25,26 +35,11 @@ jobs:
     - name: Build APK
       run: cargo apk build --release
       env:
-        ANDROID_HOME: /tmp  # Fake ANDROID_HOME to satisfy cargo-apk
-    
-    - name: Find and Upload APK
-      run: |
-        # Find the APK file
-        find . -name "*.apk" -type f
-        # If APK is found, move it to a known location
-        APK_FILE=$(find target -name "*.apk" 2>/dev/null | head -1)
-        if [ -n "$APK_FILE" ]; then
-          cp "$APK_FILE" ./sni-spoof.apk
-          echo "APK found at $APK_FILE"
-        else
-          echo "No APK found, listing directory structure:"
-          ls -la target/
-          find target -type f 2>/dev/null || echo "No target directory"
-        fi
+        ANDROID_HOME: ${{ env.ANDROID_HOME }}
+        ANDROID_SDK_ROOT: ${{ env.ANDROID_HOME }}
     
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: sni-spoof-apk
-        path: ./sni-spoof.apk
-        if-no-files-found: warn
+        path: target/android-artifacts/release/*.apk
