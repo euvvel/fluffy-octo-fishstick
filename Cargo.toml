@@ -1,6 +1,6 @@
 [package]
 name = "sni-spoof-android"
-version = "0.0.0"
+version = "0.1.0"
 edition = "2026"
 
 [lib]
@@ -21,14 +21,3 @@ anyhow = "1"
 package_name = "com.snispoof.android"
 min_sdk_version = 23
 target_sdk_version = 33
-version_code = 1
-version_name = "1.0.0"
-
-[package.metadata.android.permissions]
-android.permission.INTERNET = true
-
-[profile.release]
-lto = true
-opt-level = "z"
-codegen-units = 1
-strip = true
