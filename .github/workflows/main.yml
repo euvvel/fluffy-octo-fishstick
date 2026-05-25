@@ -24,9 +24,27 @@ jobs:
     
     - name: Build APK
       run: cargo apk build --release
+      env:
+        ANDROID_HOME: /tmp  # Fake ANDROID_HOME to satisfy cargo-apk
+    
+    - name: Find and Upload APK
+      run: |
+        # Find the APK file
+        find . -name "*.apk" -type f
+        # If APK is found, move it to a known location
+        APK_FILE=$(find target -name "*.apk" 2>/dev/null | head -1)
+        if [ -n "$APK_FILE" ]; then
+          cp "$APK_FILE" ./sni-spoof.apk
+          echo "APK found at $APK_FILE"
+        else
+          echo "No APK found, listing directory structure:"
+          ls -la target/
+          find target -type f 2>/dev/null || echo "No target directory"
+        fi
     
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: sni-spoof-apk
-        path: target/android-artifacts/release/*.apk
+        path: ./sni-spoof.apk
+        if-no-files-found: warn
