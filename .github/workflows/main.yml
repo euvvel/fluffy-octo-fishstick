@@ -1,0 +1,47 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Rust
+      run: |
+        rustup install stable
+        rustup target add aarch64-linux-android
+        rustup target add armv7-linux-androideabi
+        rustup default stable
+    
+    - name: Install cargo-apk2
+      run: cargo install cargo-apk2
+    
+    - name: Setup Android SDK
+      run: |
+        mkdir -p $HOME/android-sdk/cmdline-tools
+        cd $HOME/android-sdk
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+        unzip -q commandlinetools-linux-11076708_latest.zip
+        mv cmdline-tools cmdline-tools/latest
+        echo "y" | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.0" > /dev/null 2>&1
+        echo "y" | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
+    
+    - name: Set Android environment
+      run: |
+        echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+        echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
+    
+    - name: Build APK
+      run: cargo apk2 build --release
+    
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: sni-spoof-apk
+        path: target/android-artifacts/release/*.apk
