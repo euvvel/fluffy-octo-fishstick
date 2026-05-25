@@ -1,0 +1,36 @@
+[package]
+name = "sni-spoof-android"
+version = "0.0.0"
+edition = "2026"
+
+[lib]
+crate-type = ["cdylib"]
+name = "snispoof"
+
+[dependencies]
+android-activity = "0.6"
+log = "0.4"
+android_logger = "0.13"
+tokio = { version = "1", features = ["full"] }
+byteorder = "1"
+rand = "0.8"
+hex = "0.4"
+anyhow = "1"
+
+[package.metadata.android]
+package_name = "com.snispoof.android"
+min_sdk_version = 23
+target_sdk_version = 33
+version_code = 1
+version_name = "1.0.0"
+rust_binary_name = "snispoof"
+shared_libs = ["libsnispoof.so"]
+
+[package.metadata.android.permissions]
+android.permission.INTERNET = true
+
+[profile.release]
+lto = true
+opt-level = "z"
+codegen-units = 1
+strip = true
